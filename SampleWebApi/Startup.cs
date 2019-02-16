@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -28,6 +29,11 @@ namespace SampleWebApi
         public void ConfigureServices(IServiceCollection services)
         {
             // configure JWT authentication
+            // this is a bad practice
+            // you should use https://blogs.msdn.microsoft.com/mihansen/2017/09/10/managing-secrets-in-net-core-2-0-apps/
+            var signingKey = Configuration["Settings:SigningKey"];
+            var encodedKey = Encoding.ASCII.GetBytes(signingKey);
+
             services.AddAuthentication(authenticationOptions =>
             {
                 authenticationOptions.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -38,7 +44,7 @@ namespace SampleWebApi
                 jwtBearerOptions.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(null)
+                    IssuerSigningKey = new SymmetricSecurityKey(encodedKey)
                 };
             });
 
