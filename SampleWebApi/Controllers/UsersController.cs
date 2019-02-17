@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SampleWebApi.Dtos;
+using SampleWebApi.Models;
 using SampleWebApi.Services;
+using System.Threading.Tasks;
 
 namespace SampleWebApi.Controllers
 {
@@ -16,8 +19,16 @@ namespace SampleWebApi.Controllers
         }
 
         [HttpPost("register")]
-        public IActionResult Register()
+        public async Task<IActionResult> Register([FromBody] UserRegisterDto userRegisterDto)
         {
+            // map dto to entity
+            var user = MapToEntity(userRegisterDto);
+
+            user = await _userService.Register(user, userRegisterDto.Password);
+
+            if (user == null)
+                return BadRequest();
+
             return Ok();
         }
 
@@ -25,6 +36,15 @@ namespace SampleWebApi.Controllers
         public IActionResult Login()
         {
             return Ok();
+        }
+
+        private User MapToEntity(UserRegisterDto userRegisterDto)
+        {
+            return new User
+            {
+                Username = userRegisterDto.Username,
+                Email = userRegisterDto.Email
+            };
         }
     }
 }
