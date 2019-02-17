@@ -33,9 +33,17 @@ namespace SampleWebApi.Controllers
         }
 
         [HttpPost("login")]
-        public IActionResult Login()
+        public async Task<IActionResult> Login([FromBody] UserLoginDto userLoginDto)
         {
-            return Ok();
+            // map dto to entity
+            var user = MapToEntity(userLoginDto);
+
+            var accessToken = await _userService.Login(user, userLoginDto.Password);
+
+            if (accessToken == null)
+                return BadRequest();
+
+            return Ok(new { access_token = accessToken });
         }
 
         private User MapToEntity(UserRegisterDto userRegisterDto)
@@ -44,6 +52,14 @@ namespace SampleWebApi.Controllers
             {
                 Username = userRegisterDto.Username,
                 Email = userRegisterDto.Email
+            };
+        }
+
+        private User MapToEntity(UserLoginDto userRegisterDto)
+        {
+            return new User
+            {
+                Username = userRegisterDto.Username,
             };
         }
     }
