@@ -5,7 +5,8 @@ namespace SampleWebApi.Data
 {
     public interface IUserRepository
     {
-        Task CreateUserAsync(User user);
+        Task<User> CreateUserAsync(User user, string password);
         Task<User> GetUserByEmailAsync(string email);
+        Task<bool> UserExistsAsync(User user);
     }
 }

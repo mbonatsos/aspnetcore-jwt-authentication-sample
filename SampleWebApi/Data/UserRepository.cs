@@ -13,15 +13,21 @@ namespace SampleWebApi.Data
             _dataContext = dataContext;
         }
 
-        public async Task CreateUserAsync(User user)
+        public async Task<User> CreateUserAsync(User user, string password)
         {
-            await _dataContext.AddAsync(user);
+            var entityEntry = await _dataContext.AddAsync(user);
             await _dataContext.SaveChangesAsync();
+            return entityEntry.Entity;
         }
 
         public Task<User> GetUserByEmailAsync(string email)
         {
             return _dataContext.Users.FirstOrDefaultAsync(x => x.Email == email);
+        }
+
+        public Task<bool> UserExistsAsync(User user)
+        {
+            return _dataContext.Users.AnyAsync(x => x.Email == user.Email || x.Username == user.Username);
         }
     }
 }

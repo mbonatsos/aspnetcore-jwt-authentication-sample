@@ -41,6 +41,28 @@ namespace SampleWebApi.Services
         }
 
         /// <summary>
+        /// Registers a <see cref="User"/>
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public async Task<User> Register(User user, string password)
+        {
+            var userExists = await _userRepository.UserExistsAsync(user);
+
+            if (userExists)
+                return null;
+
+            // hash password
+            var hashed = CreatePasswordHash(password);
+            user.PasswordHash = hashed.passwordHash;
+            user.PasswordSalt = hashed.passwordSalt;
+
+            var createdUser = await _userRepository.CreateUserAsync(user, password);
+            return createdUser;
+        }
+
+        /// <summary>
         /// Authenticates the given user
         /// </summary>
         /// <param name="user"></param>
@@ -67,6 +89,17 @@ namespace SampleWebApi.Services
             {
                 var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
                 return computedHash.SequenceEqual(user.PasswordHash);
+            }
+        }
+
+        private (byte[] passwordHash, byte[] passwordSalt) CreatePasswordHash(string password)
+        {
+            using (var hmac = new System.Security.Cryptography.HMACSHA512())
+            {
+                var passwordSalt = hmac.Key;
+                var passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+
+                return (passwordHash, passwordSalt);
             }
         }
 
