@@ -59,7 +59,7 @@ namespace SampleWebApi.Controllers
         {
             return new User
             {
-                Username = userRegisterDto.Username,
+                Email = userRegisterDto.Email,
             };
         }
     }

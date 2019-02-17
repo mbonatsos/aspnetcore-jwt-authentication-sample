@@ -58,7 +58,7 @@ namespace SampleWebApi.Services
             user.PasswordHash = hashed.passwordHash;
             user.PasswordSalt = hashed.passwordSalt;
 
-            var createdUser = await _userRepository.CreateUserAsync(user, password);
+            var createdUser = await _userRepository.CreateUserAsync(user);
             return createdUser;
         }
 

@@ -13,7 +13,7 @@ namespace SampleWebApi.Data
             _dataContext = dataContext;
         }
 
-        public async Task<User> CreateUserAsync(User user, string password)
+        public async Task<User> CreateUserAsync(User user)
         {
             var entityEntry = await _dataContext.AddAsync(user);
             await _dataContext.SaveChangesAsync();
