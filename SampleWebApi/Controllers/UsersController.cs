@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SampleWebApi.Dtos;
 using SampleWebApi.Models;
@@ -11,18 +12,19 @@ namespace SampleWebApi.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
+        private readonly IMapper _mapper;
         private readonly IUserService _userService;
 
-        public UsersController(IUserService userService)
+        public UsersController(IMapper mapper, IUserService userService)
         {
+            _mapper = mapper;
             _userService = userService;
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserRegisterDto userRegisterDto)
         {
-            // map dto to entity
-            var user = MapToEntity(userRegisterDto);
+            var user = _mapper.Map<User>(userRegisterDto);
 
             user = await _userService.Register(user, userRegisterDto.Password);
 
@@ -35,8 +37,7 @@ namespace SampleWebApi.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLoginDto userLoginDto)
         {
-            // map dto to entity
-            var user = MapToEntity(userLoginDto);
+            var user = _mapper.Map<User>(userLoginDto);
 
             var accessToken = await _userService.Login(user, userLoginDto.Password);
 
@@ -44,23 +45,6 @@ namespace SampleWebApi.Controllers
                 return BadRequest();
 
             return Ok(new { access_token = accessToken });
-        }
-
-        private User MapToEntity(UserRegisterDto userRegisterDto)
-        {
-            return new User
-            {
-                Username = userRegisterDto.Username,
-                Email = userRegisterDto.Email
-            };
-        }
-
-        private User MapToEntity(UserLoginDto userRegisterDto)
-        {
-            return new User
-            {
-                Email = userRegisterDto.Email,
-            };
         }
     }
 }
